@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
-
+BASE_URL = 'http://127.0.0.1:8000/'
 # Application definition
 
 INSTALLED_APPS = [
@@ -38,19 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.github',
-    'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.twitter',
     'social_login',
-    'django.contrib.sites',
-    'rest_framework',
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
-    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -61,7 +49,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = 'social_auth.urls'
@@ -89,7 +76,7 @@ AUTHENTICATION_BACKENDS = [
     'social_core.backends.google.GoogleOpenId',
     'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.google.GoogleOAuth',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    # 'allauth.account.auth_backends.AuthenticationBackend',
     'social_core.backends.twitter.TwitterOAuth',
     'django.contrib.auth.backends.ModelBackend',
 ]
@@ -162,9 +149,6 @@ ACCOUNT_LOGIN_REDIRECT_URL = 'home'
 ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'
 
 # Twitter
-TWITTER_CONSUMER_KEY = 'XXXXXXXXXXXXXXXXXX'
-TWITTER_CONSUMER_SECRET_KEY = 'XXXXXXXXXXXXXXXXXXXX'
-
 SOCIAL_LOGIN_ERROR_REDIRECT_URL=""
 
 
@@ -176,43 +160,15 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         'CLIENT_ID':'1073769602100-he91ac0fkhmvm6tlr2jod692vg4b00al.apps.googleusercontent.com',
         'CLIENT_SECRET':'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',
+        'AUTHORIZATION_URL':'https://accounts.google.com/o/oauth2/auth',
         'TOKEN_URL':'https://oauth2.googleapis.com/token',
         'EMAIL_URL':'https://www.googleapis.com/oauth2/v1/tokeninfo',
         'USER_INFO_URL':'https://www.googleapis.com/oauth2/v1/userinfo',
-        'REDIRECT_URL':'',
+        'REDIRECT_URL': BASE_URL + 'social/account/oauth/google/login/callback',
         'AUTH_PARAMS': {
             'access_type': 'online',
         },
         'OAUTH_PKCE_ENABLED': True,
-    },
-    # 'github': {
-    #     'SCOPE': [
-    #         'user',
-    #         'repo',
-    #         'read:org',
-    #     ],
-    # },
-    'facebook': {
-        'METHOD': 'oauth2',  # Set to 'js_sdk' to use the Facebook connect SDK
-        'SDK_URL': '//connect.facebook.net/{locale}/sdk.js',
-        'SCOPE': ['email', 'public_profile'],
-        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
-        'INIT_PARAMS': {'cookie': True},
-        'FIELDS': [
-            'id',
-            'first_name',
-            'last_name',
-            'middle_name',
-            'name',
-            'name_format',
-            'picture',
-            'short_name'
-        ],
-        'EXCHANGE_TOKEN': True,
-        'LOCALE_FUNC': 'path.to.callable',
-        'VERIFIED_EMAIL': False,
-        'VERSION': 'v13.0',
-        'GRAPH_API_URL': 'https://graph.facebook.com/v13.0',
     },
     'twitter': {
         'SCOPE': [
@@ -222,8 +178,12 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {
             'force_login': True,  # Optional, pre-fills username during login
         },
-        'OAUTH_TOKEN_URL': 'https://api.twitter.com/oauth/authenticate',  # Twitter-specific endpoint
-        'OAUTH_CALLBACK_URL': os.getenv('TWITTER_REDIRECT'),  # Replace with your callback URL
+        'CLIENT_ID':'a0pVNFROWlF1R2pLQkNIWFNvVjY6MTpjaQ',
+        'CLIENT_SECRET':'dUDab7cdXBegBY35_xh5tPK3KDrBm_3KDDYwPY8zWJSxOiO2Gu',
+        'AUTHORIZATION_URL':'https://twitter.com/i/oauth2/authorize',
+        'TOKEN_URL': 'https://api.twitter.com/2/oauth2/token',  # Twitter-specific endpoint
+        'REDIRECT_URL': BASE_URL + 'social/account/oauth/twitter/login/callback',  # Replace with your callback URL
+        'USER_INFO_URL':'https://api.twitter.com/2/users/me',
         'KEY': os.getenv('TWITTER_CLIENT_ID'),
         'SECRET': os.getenv('TWITTER_CLIENT_SECRET'),
     }

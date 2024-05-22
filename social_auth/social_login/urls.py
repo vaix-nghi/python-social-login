@@ -12,5 +12,4 @@ urlpatterns = [
         social_login_callback,
         name='social_login_callback'),
     path('social/<provider>/login/', social_login, name='social_login'),
-    # path('accounts/google/login/finish/', create_user_account, name='google_login'),
     ]
