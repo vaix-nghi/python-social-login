@@ -46,19 +46,18 @@ def social_login(request, provider):
 
 def social_login_callback(request, provider):
     code = request.GET.get('code')
+    if not code:
+        return HttpResponse("No code provided")
     state = request.GET.get('state')
     
     saved_state = request.session.pop('oauth_state', None)
     
-    print(111111111)
     if provider == 'twitter' and state != saved_state:
         return HttpResponse("State value did not match")
     #Access token
-    print(111111112)
     
     access_token =_get_access_token(request, code, provider)
     print(access_token)
-    print(111111113)
     
     if not access_token: 
         return HttpResponse("Không thể lấy access token")
@@ -73,7 +72,6 @@ def social_login_callback(request, provider):
         
     #     'access_token': access_token
     #     }
-    print(111111114)
     
     headers = {
         'Authorization': f'Bearer {access_token}',
@@ -83,13 +81,11 @@ def social_login_callback(request, provider):
     
     if user_info_response.status_code != 200:
         return HttpResponse('lỗi không lấy được user info.',user_info_response.status_code)
-    print(2222)
     user_info = user_info_response.json()
-    email = user_info.get('email')
-    print(user_info)
+    email = user_info.get('email') if provider != 'twitter' else f'{user_info.get("data").get("username")}@{provider}.com'
+    print('user info: ',email)
     #Signup or Signin Request
     try:
-        print(12)
         user = User.objects.get(email=email)
         social_user = SocialAccount.objects.get(
             user=user
@@ -170,20 +166,20 @@ def _get_email_request(access_token, provider):
 def _create_user_and_social_account(user_info, provider, access_token):
     if provider == 'twitter':
         user_info = user_info.get('data')
-    email = user_info.get('email')
-    username = user_info.get('name')
+    username = user_info.get('name') if provider != 'twitter' else user_info.get('username')
     provider_id = user_info.get('id')
-    first_name = user_info.get('given_name')
+    email = user_info.get('email') if provider != 'twitter' else f'{username}@{provider}.com'
+    first_name = user_info.get('given_name') if provider != 'twitter' else user_info.get('name')
     last_name = user_info.get('family_name')
     avatar = user_info.get('avatar')
     print(user_info)
     data = {
-            'username': username if username else '{last_name}@{provider}.com'  ,
-            'first_name': first_name,
+            'username': username  ,
+            'first_name': first_name ,
             'last_name':last_name,  
         }
     
-    user, created = User.objects.get_or_create(email=email if email else '{last_name}@{provider}.com',
+    user, created = User.objects.get_or_create(email=email ,
                                                 defaults=data)
     
     if created:
@@ -195,7 +191,7 @@ def _create_user_and_social_account(user_info, provider, access_token):
                                         avatar=avatar
                                         )
     else:
-        social_account, social_created = SocialAccount.objects.get_or_create(
+        SocialAccount.objects.get_or_create(
                                         user=user,
                                         provider=provider,
                                         defaults={
