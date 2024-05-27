@@ -1,4 +1,3 @@
-
 import hashlib
 import base64
 import os
@@ -13,7 +12,6 @@ from django.shortcuts import redirect
 from .models import User, SocialAccount
 from urllib.parse import urlencode
 from .auth_helper import store_session, store_user
-
 def social_login(request, provider):
     authorization_url = settings.SOCIALACCOUNT_PROVIDERS[provider]['AUTHORIZATION_URL']
     client_id = settings.SOCIALACCOUNT_PROVIDERS[provider]['CLIENT_ID']
@@ -21,6 +19,7 @@ def social_login(request, provider):
     scope = " ".join(settings.SOCIALACCOUNT_PROVIDERS[provider]['SCOPE'])
     
     #generate codechallange, codeverifier and state
+
     code_verifier = generate_code_verifier()
     code_challenge = generate_code_challenge(code_verifier)
     state = generate_state()
@@ -32,13 +31,16 @@ def social_login(request, provider):
         'scope': scope,
         
     }
+
     if provider in settings.PROVIDER_DEFAULT:
         store_session(request=request,token=None, code_verifier=code_verifier, state=state) 
+
         query_params.update({
             'state': state,  # Tạo chuỗi ngẫu nhiên để bảo mật
             'code_challenge': code_challenge,
             'code_challenge_method': 'S256',  # Phương pháp băm SHA-256
         })
+
     if provider =='microsoft':
         query_params.update({
             'response_mode':'query'
@@ -53,6 +55,7 @@ def social_login(request, provider):
     
     return redirect(auth_url)
 
+
 def social_login_callback(request, provider):
     code = request.GET.get('code')
     if not code:
@@ -60,6 +63,7 @@ def social_login_callback(request, provider):
     state = request.GET.get('state')
     
     saved_state = request.session.pop('oauth_state', None)
+
     if provider in settings.PROVIDER_DEFAULT and state != saved_state:
         return HttpResponse("State value did not match ",state)
     #Access token
@@ -95,6 +99,7 @@ def social_login_callback(request, provider):
         social_user.token_expiration  = timezone.now() + timedelta(hours=1)
         social_user.save()
         
+
         if social_user.provider != provider:
             return HttpResponse('no matching social type')
         if social_user is None:
@@ -118,10 +123,12 @@ def social_login_callback(request, provider):
     # request.session['uid'] = user.user_id   
 
 def _get_access_token(request, code, provider):
+
     
     code_verifier = request.session.pop('code_verifier', None)
     headers = {}
     
+
     token_data = {
         'code': code,
         'client_id': settings.SOCIALACCOUNT_PROVIDERS[provider]['CLIENT_ID'],
@@ -133,10 +140,12 @@ def _get_access_token(request, code, provider):
     if provider in settings.PROVIDER_DEFAULT:
         encoded_credentials = base64.b64encode(f"{settings.SOCIALACCOUNT_PROVIDERS[provider]['CLIENT_ID']}:{settings.SOCIALACCOUNT_PROVIDERS[provider]['CLIENT_SECRET']}".encode()).decode()
         print('encoded_credentials: ',encoded_credentials)
+
         token_data.update({
             'code_verifier': code_verifier,
         })
         headers.update({
+
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': f'{settings.SOCIALACCOUNT_PROVIDERS[provider]["AUTHORIZATION"]} {encoded_credentials}'
         })
@@ -184,6 +193,7 @@ def _create_user_and_social_account(user_info, provider, access_token):
     uid = email if provider != 'twitter' else username
     print(user_info)
     
+
     data = {
             'username': username  ,
             'first_name': first_name ,
@@ -218,7 +228,7 @@ def _create_user_and_social_account(user_info, provider, access_token):
                                             "avatar" : avatar
                                             }
         )
-    
+
     return user
 def generate_code_verifier():
     # Tạo một chuỗi ngẫu nhiên dài 32 byte, sau đó mã hóa nó bằng Base64 URL-safe và loại bỏ các dấu '='
@@ -261,3 +271,4 @@ def compare_expire_time(request):
         if user:
             return user
     return None
+
