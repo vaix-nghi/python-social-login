@@ -187,7 +187,8 @@ SOCIALACCOUNT_PROVIDERS = {
         'USER_INFO_URL':'https://api.twitter.com/2/users/me',
         'AUTH_PARAMS': {
             'response_type': 'code',
-            'grant_type': 'authorization_code'
+            'grant_type': 'authorization_code',
+            'Content_Type': 'application/x-www-form-urlencoded'
         },
         'AUTHORIZATION': 'Basic'
     },
