@@ -172,7 +172,6 @@ SOCIALACCOUNT_PROVIDERS = {
             'response_type': 'code',
             'grant_type': 'authorization_code',
             'Content-Type': 'application/x-www-form-urlencoded'
-            
         }
     },
     'twitter': {
@@ -193,7 +192,22 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTHORIZATION': 'Basic'
     },
     'microsoft': {
-        
+        'SCOPE': [
+            'user.read',
+        ],
+        'CLIENT_ID':'6c67689b-ea88-4e99-aedd-07bbbd40b159',
+        'CLIENT_SECRET':'XWB8Q~VwwaaOu2Rdv_cqTx1S9AlcAcI5OSZhtc7N',
+        'AUTHORIZATION_URL':'https://login.live.com/oauth20_authorize.srf', #change the tenant
+        'TOKEN_URL': 'https://login.live.com/oauth20_token.srf',  # Twitter-specific endpoint
+        'REDIRECT_URL': 'http://localhost:8000/social/account/oauth/microsoft/login/callback',  # Replace with your callback URL
+        'USER_INFO_URL':'https://graph.microsoft.com/v1.0/me',
+        'AUTH_PARAMS': {
+            'response_type': 'code',
+            'grant_type': 'authorization_code',
+            'Content_Type': 'application/x-www-form-urlencoded'
+            
+        },
+        'AUTHORIZATION': 'Bearer'
     },
 }
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = False
