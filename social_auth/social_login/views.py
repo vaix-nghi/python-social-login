@@ -33,8 +33,8 @@ def social_login(request, provider):
         'scope': scope,
         
     }
+    store_session(request=request,token=None, code_verifier=code_verifier, state=state) 
     if provider in settings.PROVIDER_DEFAULT:
-        store_session(request=request,token=None, code_verifier=code_verifier, state=state) 
         #phương thức bảo mật PKCE
         query_params.update({
             'code_challenge': code_challenge,
