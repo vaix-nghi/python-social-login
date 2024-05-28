@@ -18,6 +18,7 @@ def social_login(request, provider):
     client_id = settings.SOCIALACCOUNT_PROVIDERS[provider]['CLIENT_ID']
     redirect_uri = settings.SOCIALACCOUNT_PROVIDERS[provider]['REDIRECT_URL']
     scope = " ".join(settings.SOCIALACCOUNT_PROVIDERS[provider]['SCOPE'])
+    response_type = settings.SOCIALACCOUNT_PROVIDERS[provider]['AUTH_PARAMS']['response_type']
     
     #generate codechallange, codeverifier and state
     code_verifier = generate_code_verifier()
@@ -27,14 +28,15 @@ def social_login(request, provider):
     query_params = {
         'client_id': client_id,
         'redirect_uri': redirect_uri,
-        'response_type': 'code',
+        'response_type': response_type,
+        'state': state,  # Tạo chuỗi ngẫu nhiên để bảo mật
         'scope': scope,
         
     }
     if provider in settings.PROVIDER_DEFAULT:
         store_session(request=request,token=None, code_verifier=code_verifier, state=state) 
+        #phương thức bảo mật PKCE
         query_params.update({
-            'state': state,  # Tạo chuỗi ngẫu nhiên để bảo mật
             'code_challenge': code_challenge,
             'code_challenge_method': 'S256',  # Phương pháp băm SHA-256
         })
@@ -59,7 +61,7 @@ def social_login_callback(request, provider):
     state = request.GET.get('state')
     
     saved_state = request.session.pop('oauth_state', None)
-    if provider in settings.PROVIDER_DEFAULT and state != saved_state:
+    if state != saved_state:
         return HttpResponse("State value did not match ",state)
     #Access token
     access_token =_get_access_token(request, code, provider)
@@ -126,7 +128,7 @@ def _get_access_token(request, code, provider):
         'client_id': settings.SOCIALACCOUNT_PROVIDERS[provider]['CLIENT_ID'],
         'client_secret': settings.SOCIALACCOUNT_PROVIDERS[provider]['CLIENT_SECRET'],
         'redirect_uri': settings.SOCIALACCOUNT_PROVIDERS[provider]['REDIRECT_URL'],
-        'grant_type': 'authorization_code'  #can choose refresh_token OR  authorization_code
+        'grant_type':  settings.SOCIALACCOUNT_PROVIDERS[provider]["AUTH_PARAMS"]["grant_type"]  #can choose refresh_token OR  authorization_code
     }
     
     if provider in settings.PROVIDER_DEFAULT:
@@ -136,14 +138,13 @@ def _get_access_token(request, code, provider):
             'code_verifier': code_verifier,
         })
         headers.update({
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': settings.SOCIALACCOUNT_PROVIDERS[provider]['AUTH_PARAMS']['Content-Type'],
             'Authorization': f'{settings.SOCIALACCOUNT_PROVIDERS[provider]["AUTHORIZATION"]} {encoded_credentials}'
         })
         
     token_url = settings.SOCIALACCOUNT_PROVIDERS[provider]['TOKEN_URL']
     
     #send request post
-    
     token_req = requests.post(
         token_url,data=token_data,headers=headers)
     print("token_req: ",token_req.reason)
