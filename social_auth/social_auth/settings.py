@@ -192,6 +192,8 @@ SOCIALACCOUNT_PROVIDERS = {
         },
         'AUTHORIZATION': 'Basic'
     },
-    
+    'microsoft': {
+        
+    },
 }
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = False
