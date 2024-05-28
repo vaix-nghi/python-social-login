@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-5(o9m$8g5ig_*a3kigp@vn)@-%xc-+shrj@ig_oa5^z(lk5@dd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['127.0.0.1','localhost']
 
 BASE_URL = 'http://127.0.0.1:8000/'
 # Application definition
@@ -151,6 +151,9 @@ ACCOUNT_LOGOUT_REDIRECT_URL = 'account_login'
 # Twitter
 SOCIAL_LOGIN_ERROR_REDIRECT_URL=""
 
+TENANT ="common"
+
+PROVIDER_DEFAULT = ['twitter','microsoft']
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
@@ -160,32 +163,35 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         'CLIENT_ID':'1073769602100-he91ac0fkhmvm6tlr2jod692vg4b00al.apps.googleusercontent.com',
         'CLIENT_SECRET':'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',
-        'AUTHORIZATION_URL':'https://accounts.google.com/o/oauth2/auth',
+        'AUTHORIZATION_URL':'https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount',
         'TOKEN_URL':'https://oauth2.googleapis.com/token',
         'EMAIL_URL':'https://www.googleapis.com/oauth2/v1/tokeninfo',
         'USER_INFO_URL':'https://www.googleapis.com/oauth2/v1/userinfo',
         'REDIRECT_URL': BASE_URL + 'social/account/oauth/google/login/callback',
         'AUTH_PARAMS': {
-            'access_type': 'online',
-        },
-        'OAUTH_PKCE_ENABLED': True,
+            'response_type': 'code',
+            'grant_type': 'authorization_code',
+            'Content-Type': 'application/x-www-form-urlencoded'
+            
+        }
     },
     'twitter': {
         'SCOPE': [
             'tweet.read',
             'users.read',  # Request these permissions as needed
         ],
-        'AUTH_PARAMS': {
-            'force_login': True,  # Optional, pre-fills username during login
-        },
         'CLIENT_ID':'a0pVNFROWlF1R2pLQkNIWFNvVjY6MTpjaQ',
-        'CLIENT_SECRET':'dUDab7cdXBegBY35_xh5tPK3KDrBm_3KDDYwPY8zWJSxOiO2Gu',
-        'AUTHORIZATION_URL':'https://twitter.com/i/oauth2/authorize',
+        'CLIENT_SECRET':'TM64kKGwWKYMedCZ163Fb7qin5Hhj8LTo9gBtReDVIqh2sSjQr',
+        'AUTHORIZATION_URL':'https://twitter.com/i/oauth2/authorize', #https://api.twitter.com/oauth/authenticate?oauth_signature_method=HMAC-SHA1&oauth_signature=GGGfmmHwEMdcmzRTIz0QWlE19Us%3D&oauth_token=UH5qaQAAAAAAAAsqAAABj7lcDyo&oauth_callback=https%3A%2F%2Fdisqus.com%2F_ax%2Ftwitter%2Fcomplete%2F%3Fstate%3D7zWDsnfugIdxMRfASCxIQ3xJOgg7XEe4
         'TOKEN_URL': 'https://api.twitter.com/2/oauth2/token',  # Twitter-specific endpoint
         'REDIRECT_URL': BASE_URL + 'social/account/oauth/twitter/login/callback',  # Replace with your callback URL
         'USER_INFO_URL':'https://api.twitter.com/2/users/me',
-        'KEY': os.getenv('TWITTER_CLIENT_ID'),
-        'SECRET': os.getenv('TWITTER_CLIENT_SECRET'),
-    }
+        'AUTH_PARAMS': {
+            'response_type': 'code',
+            'grant_type': 'authorization_code'
+        },
+        'AUTHORIZATION': 'Basic'
+    },
+    
 }
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = False
