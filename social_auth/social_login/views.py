@@ -138,7 +138,7 @@ def _get_access_token(request, code, provider):
             'code_verifier': code_verifier,
         })
         headers.update({
-            'Content-Type': settings.SOCIALACCOUNT_PROVIDERS[provider]['AUTH_PARAMS']['Content-Type'],
+            'Content-Type': settings.SOCIALACCOUNT_PROVIDERS[provider]['AUTH_PARAMS']['Content_Type'],
             'Authorization': f'{settings.SOCIALACCOUNT_PROVIDERS[provider]["AUTHORIZATION"]} {encoded_credentials}'
         })
         
